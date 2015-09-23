@@ -8,7 +8,7 @@ class BacktrackingSearch:
 
     def search(self):
         self.assignment = Assignment()
-        self._recursive_search()
+        return self._recursive_search()
 
     # dumb backtracking search
     def _recursive_search(self):

@@ -8,11 +8,11 @@ class CP:
 
     def search(self):
         backtracking_search = BacktrackingSearch(self)
-        backtracking_search.search()
+        return backtracking_search.search()
 
     def is_complete(self, assignment):
         for variable in self.variables:
-            if variable not in assignment.assignments:
+            if not assignment.is_assigned(variable):
                 return False
         return True
 
@@ -33,10 +33,10 @@ class CP:
     def select_unassigned_variable(self, assignment):
         # write a min remaining values heuristic here
         for variable in self.variables:
-            if variable not in assignment.assignments:
+            if not assignment.is_assigned(variable):
                 return variable
         return None
 
     def order_domain_values(self, variable):
         # write a least constraining value heuristic here
-        pass
+        return variable.domain
