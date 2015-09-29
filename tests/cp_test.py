@@ -1,4 +1,5 @@
 import unittest
+
 from src.cp.cp import CP
 from src.cp.variable import Variable
 from src.cp.constraints.not_equals_constraint import NotEqualsConstraint
