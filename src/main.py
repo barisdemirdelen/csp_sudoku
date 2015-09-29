@@ -3,6 +3,7 @@ import unittest
 from cp.cp import CP
 from cp.variable import Variable
 from cp.constraints.not_equals_constraint import NotEqualsConstraint
+from cp.constraints.all_different_constraint import AllDifferentConstraint
 
 
 def read_sudoku():
@@ -25,31 +26,31 @@ def make_variables(sudokus):
 	return variable_array
 
 
+def created_sudoku_constraints(variables):
+	constaints_array = []
+	constraint_num = 1
+	for i in range(0,82,9):
+		constaints_array.append( AllDifferentConstraint("name%d"%constraint_num, variables[i:i+9]))
+		constraint_num += 1 
+		if i+9 >= 81:
+			break
+	for colom in range(0,9):
+		colom_vars = []
+		for cell in range(colom,81,9):
+			colom_vars.append(variables[cell])
+		constaints_array.append( AllDifferentConstraint("name%d"%constraint_num, colom_vars))
+		constraint_num += 1
+	
+
+
+	
+
+
+
 sudokus = read_sudoku()
 variables = make_variables(sudokus)
+constraints =  created_sudoku_constraints(variables)
+
 
     
 
-'''
-
-class CPTestCase(unittest.TestCase):
-    def setUp(self):
-        self.cp = CP()
-        self.var1 = Variable("var1", [1, 2])
-        self.var2 = Variable("var2", [1])
-        self.cp.variables = [self.var1, self.var2]
-        self.not_equals = NotEqualsConstraint(self.var1, self.var2)
-        self.cp.constraints = [self.not_equals]
-
-    def tearDown(self):
-        self.cp = None
-
-    def test_cp(self):
-        assignment = self.cp.search()
-        self.assertEqual(assignment.get_value(self.var1), 2)
-        self.assertEqual(assignment.get_value(self.var2), 1)
-
-if __name__ == '__main__':
-    unittest.main()
-
-    '''
