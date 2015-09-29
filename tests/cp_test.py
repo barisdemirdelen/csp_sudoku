@@ -11,7 +11,7 @@ class CPTestCase(unittest.TestCase):
         self.cp = CP()
         self.var1 = Variable("var1", [1, 2])
         self.var2 = Variable("var2", [1])
-        self.var3 = Variable("var3", [2, 3])
+        self.var3 = Variable("var3", [2, 3, 4, 5, 6])
         self.cp.variables = [self.var1, self.var2, self.var3]
         not_equals = NotEqualsConstraint("ne-12", self.var1, self.var2)
         all_different = AllDifferentConstraint("ad-123", [self.var1, self.var2, self.var3])
@@ -24,7 +24,7 @@ class CPTestCase(unittest.TestCase):
         assignment = self.cp.search()
         self.assertEqual(assignment.get_value(self.var1), 2)
         self.assertEqual(assignment.get_value(self.var2), 1)
-        self.assertEqual(assignment.get_value(self.var3), 3)
+        self.assertNotEqual(assignment.get_value(self.var3), 2)
 
 
 if __name__ == '__main__':

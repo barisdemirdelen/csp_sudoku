@@ -11,3 +11,7 @@ class Constraint:
     @abstractmethod
     def test_constraint(self, assignment):
         pass
+
+    @abstractmethod
+    def get_number_of_rule_outs(self, variable1, value2):
+        pass
