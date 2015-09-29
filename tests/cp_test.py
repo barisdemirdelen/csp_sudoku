@@ -10,12 +10,11 @@ class CPTestCase(unittest.TestCase):
     def setUp(self):
         self.cp = CP()
         self.var1 = Variable("var1", [1, 2])
-        self.var2 = Variable("var2", [1])
-        self.var3 = Variable("var3", [2, 3, 4, 5, 6])
+        self.var2 = Variable("var2", [1, 2])
+        self.var3 = Variable("var3", [1, 2, 3])
         self.cp.variables = [self.var1, self.var2, self.var3]
-        not_equals = NotEqualsConstraint("ne-12", self.var1, self.var2)
         all_different = AllDifferentConstraint("ad-123", [self.var1, self.var2, self.var3])
-        self.cp.constraints = [not_equals, all_different]
+        self.cp.constraints = [all_different]
 
     def tearDown(self):
         self.cp = None
