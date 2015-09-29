@@ -18,10 +18,10 @@ class BacktrackingSearch:
         ordered_values = self.cp.order_domain_values(variable)
 
         for value in ordered_values:
-            if self.cp.is_consistent(variable, value, self.assignment):
-                self.assignment.add(variable, value)
+            self.assignment.add(variable, value)
+            if self.cp.is_consistent(self.assignment):
                 result = self._recursive_search()
                 if result is not None:
                     return result
-                self.assignment.remove(variable)
+            self.assignment.remove(variable)
         return None
