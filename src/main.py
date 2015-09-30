@@ -34,13 +34,13 @@ def created_sudoku_constraints(variables):
 		constraint_num += 1 
 		if i+9 >= 81:
 			break
-	for colom in range(0,9):
-		colom_vars = []
-		for cell in range(colom,81,9):
+	for column in range(0,9):
+		column_vars = []
+		for cell in range(column,81,9):
 			colom_vars.append(variables[cell])
-		constaints_array.append( AllDifferentConstraint("name%d"%constraint_num, colom_vars))
+		constaints_array.append( AllDifferentConstraint("name%d"%constraint_num, column_vars))
 		constraint_num += 1
-	
+	#for row in range(0,8)
 
 
 	
@@ -49,7 +49,23 @@ def created_sudoku_constraints(variables):
 
 sudokus = read_sudoku()
 variables = make_variables(sudokus)
-constraints =  created_sudoku_constraints(variables)
+#constraints =  created_sudoku_constraints(variables)
+
+row_start = 0
+row_end = 26
+for row_block in range(0,3):
+	column_start = 0
+	column_end = 2
+	for column_block in range(0,3):
+		array = []
+		for i in range(0,82):
+			if ((i%9 >= column_start and i%9 <= column_end) and ( i >= row_start and i <= row_end)):
+				array.append(i)
+		print array  
+		column_start += 3
+		column_end += 3
+	row_start += 26
+	row_end += 26			
 
 
     

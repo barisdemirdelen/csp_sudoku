@@ -1,6 +1,6 @@
 from backtracking_search import BacktrackingSearch
 from assignment import Assignment
-from arc import Arc
+#from arc import Arc
 
 
 class CP:
