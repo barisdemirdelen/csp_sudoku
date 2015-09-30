@@ -19,8 +19,6 @@ class AllDifferentConstraint(Constraint):
     def get_number_of_rule_outs(self, variable1, value2):
         rule_out = 0
         if variable1 in self.variables:
-            for value1 in variable1.domain:
-                if value1 == value2:
-                    rule_out += 1
-                    break
+            if value2 in variable1.get_current_domain():
+                rule_out = 1
         return rule_out
