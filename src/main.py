@@ -25,7 +25,7 @@ def make_variables(sudokus):
     return variable_array
 
 
-def created_sudoku_constraints(variables):
+def create_sudoku_constraints(variables):
     constaints_array = []
     constraint_num = 1
     # get all the variables per row
@@ -46,13 +46,13 @@ def created_sudoku_constraints(variables):
     # get all the variables per block
     row_start = 0
     row_end = 26
-    for row_block in range(0,3):
+    for row_block in range(0, 3):
         column_start = 0
         column_end = 2
-        for column_block in range(0,3):
+        for column_block in range(0, 3):
             block_vars = []
-            for i in range(0,82):
-                if ((i%9 >= column_start and i%9 <= column_end) and ( i >= row_start and i <= row_end)):
+            for i in range(0, 82):
+                if (column_start <= i % 9 <= column_end) and (row_start <= i <= row_end):
                     block_vars.append(variables[i])
             constaints_array.append(AllDifferentConstraint("name%d" % constraint_num, block_vars))
             constraint_num += 1
@@ -60,13 +60,12 @@ def created_sudoku_constraints(variables):
             column_end += 3
         row_start += 27
         row_end += 27
-        return constaints_array
-
+    return constaints_array
 
 
 sudokus = read_sudoku()
 variables = make_variables(sudokus)
-constraints = created_sudoku_constraints(variables)
+constraints = create_sudoku_constraints(variables)
 
 start = time.time()
 cp = CP()
@@ -84,6 +83,3 @@ for variable in cp.variables:
 end = time.time()
 
 print "runtime:", end - start, "seconds."
-
-
-

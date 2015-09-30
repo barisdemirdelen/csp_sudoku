@@ -8,10 +8,10 @@ class Variable:
         return self.domains[len(self.domains)-1]
 
     def set_current_domain(self, domain):
-        self.domains[len(self.domains)-1] = domain
+        self.domains[len(self.domains)-1] = list(domain)
 
     def add_domain_step(self):
-        self.domains.append(self.get_current_domain())
+        self.domains.append(list(self.get_current_domain()))
 
     def remove_domain_step(self):
         self.domains.pop()

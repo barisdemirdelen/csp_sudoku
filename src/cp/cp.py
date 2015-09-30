@@ -27,6 +27,8 @@ class CP:
     def is_consistent(self, assignment):
         self.check_consistency(assignment)
         for variable in self.variables:
+            if len(variable.get_current_domain()) == 0:
+                return False
             if assignment.is_assigned(variable):
                 if assignment.get_value(variable) not in variable.get_current_domain():
                     return False
@@ -39,9 +41,19 @@ class CP:
         start = time.time()
         arcs = set(self.arcs)
         removed_count = 0
-        while len(arcs) > 0:
-            arc = arcs.pop()
-            removed_count += self.remove_inconsistent_values(arc, assignment)
+        removed_from = set()
+        first = True
+        while len(removed_from) > 0 or first:
+            first = False
+            """for variable1 in removed_from:
+                self.generate_arcs(variable1, arcs)"""
+            removed_from = set()
+            while len(arcs) > 0:
+                arc = arcs.pop()
+                current_removed = self.remove_inconsistent_values(arc, assignment)
+                removed_count += current_removed
+                """if current_removed > 0:
+                    removed_from.add(arc.variable1)"""
         end = time.time()
         print removed_count, "values removed in", end - start
 
@@ -92,6 +104,11 @@ class CP:
     def select_unassigned_variable(self, assignment):
         # uses min remaining values heuristic
 
+        """for variable in self.variables:
+            if not assignment.is_assigned(variable):
+                return variable
+        return None"""
+
         min_remaining_values = float("inf")
         min_variable = None
         for variable in self.variables:
@@ -107,16 +124,17 @@ class CP:
 
     def order_domain_values(self, variable):
         # uses least constraining value heuristic
-        # return list(variable.get_current_domain())
-        ordered_domain = []
+        return list(variable.get_current_domain())
+        """ordered_domain = []
         rule_out_list = []
 
         for value in variable.get_current_domain():
             rule_out = 0
             for constraint in self.constraints:
-                for variable2 in self.variables:
-                    if variable != variable2:
-                        rule_out += constraint.get_number_of_rule_outs(variable2, value)
+                if variable in constraint.variables:
+                    for variable2 in self.variables:
+                        if variable != variable2:
+                            rule_out += constraint.get_number_of_rule_outs(variable2, value)
             found = False
             for i in range(len(ordered_domain)):
                 if rule_out_list[i] > rule_out:
@@ -127,4 +145,9 @@ class CP:
             if not found:
                 rule_out_list.append(rule_out)
                 ordered_domain.append(value)
-        return ordered_domain
+        return ordered_domain"""
+
+    def assign_givens(self, assignment):
+        for variable in self.variables:
+            if len(variable.get_current_domain()) == 1:
+                assignment.add(variable, variable.get_current_domain()[0])
