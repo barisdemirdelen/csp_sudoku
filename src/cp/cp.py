@@ -55,7 +55,7 @@ class CP:
                 """if current_removed > 0:
                     removed_from.add(arc.variable1)"""
         end = time.time()
-        print removed_count, "values removed in", end - start
+        # print removed_count, "values removed in", end - start
 
     def generate_arcs(self, variable1, arcs):
         for constraint in self.constraints:
@@ -125,6 +125,7 @@ class CP:
     def order_domain_values(self, variable):
         # uses least constraining value heuristic
         return list(variable.get_current_domain())
+
         """ordered_domain = []
         rule_out_list = []
 

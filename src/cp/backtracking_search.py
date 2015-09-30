@@ -13,7 +13,7 @@ class BacktrackingSearch:
 
     # dumb backtracking search
     def _recursive_search(self):
-        print "assigned", len(self.assignment.assignments[-1])
+        # print "assigned", len(self.assignment.assignments[-1])
         if self.cp.is_complete(self.assignment):
             return self.assignment
         variable = self.cp.select_unassigned_variable(self.assignment)
@@ -37,5 +37,5 @@ class BacktrackingSearch:
             for variable2 in self.cp.variables:
                 variable2.remove_domain_step()
             self.assignment.remove_assignment_step()
-        print "backtracking"
+        # print "backtracking"
         return None
