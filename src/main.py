@@ -65,11 +65,11 @@ def create_sudoku_constraints(variables):
 sudokus = read_sudoku()
 
 root_start = time.time()
-for j in range(5):
+sudokus_to_solve = 50
+for j in range(sudokus_to_solve):
     variables = make_variables(sudokus[j])
     constraints = create_sudoku_constraints(variables)
 
-    start = time.time()
     cp = CP()
     cp.variables = variables
     cp.constraints = constraints
@@ -82,9 +82,13 @@ for j in range(5):
             print ""
         i += 1
 
-    end = time.time()
-
-    print "runtime:", end - start, "seconds."
+    print "sudoku", j
+    print "runtime:", cp.runtime, "seconds."
+    print "splits:", cp.splits
+    print "backtracks:", cp.backtracks
+    print "arc generate time:", cp.arc_generate_time
+    print "remove inconsistency time:", cp.remove_inconsistency_time
 
 root_end = time.time()
 print "total runtime:", root_end - root_start, "seconds."
+print "average runtime:", 1.0*(root_end - root_start)/sudokus_to_solve, "seconds."

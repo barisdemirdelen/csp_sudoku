@@ -16,6 +16,9 @@ class AllDifferentConstraint(Constraint):
                 values.add(value)
         return True
 
+    def test_constraint_for_two(self, variable1, value1, variable2, value2):
+        return value1 != value2
+
     def get_number_of_rule_outs(self, variable1, value2):
         rule_out = 0
         if variable1 in self.variables:

@@ -13,7 +13,8 @@ class BacktrackingSearch:
 
     # dumb backtracking search
     def _recursive_search(self):
-        # print "assigned", len(self.assignment.assignments[-1])
+        if not self.cp.constraint_propagation(self.assignment):
+            return None
         if self.cp.is_complete(self.assignment):
             return self.assignment
         variable = self.cp.select_unassigned_variable(self.assignment)
@@ -28,14 +29,13 @@ class BacktrackingSearch:
                 variable2.add_domain_step()
 
             variable.set_current_domain([value])
-
-            if self.cp.is_consistent(self.assignment):
-                self.cp.assign_givens(self.assignment)
-                result = self._recursive_search()
-                if result is not None:
-                    return result
+            self.cp.splits += 1
+            result = self._recursive_search()
+            if result is not None:
+                return result
             for variable2 in self.cp.variables:
                 variable2.remove_domain_step()
             self.assignment.remove_assignment_step()
+            self.cp.backtracks += 1
         # print "backtracking"
         return None

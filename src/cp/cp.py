@@ -9,14 +9,28 @@ class CP:
         self.variables = []
         self.constraints = []
         self.arcs = set()
+        self.splits = 0
+        self.backtracks = 0
+        self.arc_generate_time = 0
+        self.remove_inconsistency_time = 0
+        self.runtime = 0
 
     def search(self):
         self.arcs = set()
+        self.splits = 0
+        self.backtracks = 0
+        self.arc_generate_time = 0
+        self.remove_inconsistency_time = 0
+        self.runtime = 0
+        start = time.time()
         for variable1 in self.variables:
-            self.arcs = self.generate_arcs(variable1, self.arcs)
+            self.generate_arcs(variable1, Assignment(), self.arcs)
 
         backtracking_search = BacktrackingSearch(self)
-        return backtracking_search.search()
+        assignment = backtracking_search.search()
+        end = time.time()
+        self.runtime = end-start
+        return assignment
 
     def is_complete(self, assignment):
         for variable in self.variables:
@@ -24,8 +38,10 @@ class CP:
                 return False
         return True
 
-    def is_consistent(self, assignment):
-        self.check_consistency(assignment)
+    def constraint_propagation(self, assignment):
+        if not self.check_consistency(assignment):
+            return False
+        self.assign_givens(assignment)
         for variable in self.variables:
             if len(variable.get_current_domain()) == 0:
                 return False
@@ -38,68 +54,77 @@ class CP:
         return True
 
     def arc_consistency(self, assignment):
-        start = time.time()
         arcs = set(self.arcs)
         removed_count = 0
         removed_from = set()
         first = True
         while len(removed_from) > 0 or first:
             first = False
-            """for variable1 in removed_from:
-                self.generate_arcs(variable1, arcs)"""
+            for variable1 in removed_from:
+                self.generate_arcs_to(variable1, assignment, arcs)
             removed_from = set()
             while len(arcs) > 0:
                 arc = arcs.pop()
-                current_removed = self.remove_inconsistent_values(arc, assignment)
+                current_removed = self.remove_inconsistent_values(arc,assignment)
                 removed_count += current_removed
-                """if current_removed > 0:
-                    removed_from.add(arc.variable1)"""
-        end = time.time()
-        # print removed_count, "values removed in", end - start
+                if current_removed > 0:
+                    if len(arc.variable1.get_current_domain()) == 0:
+                        return False
+                    removed_from.add(arc.variable1)
+                    # print removed_count, "values removed in", end - start
+        return True
 
-    def generate_arcs(self, variable1, arcs):
-        for constraint in self.constraints:
-            if variable1 in constraint.variables:
-                for variable2 in constraint.variables:
-                    if variable1 != variable2:
-                        arcs.add(Arc(variable1, variable2, constraint))
+    def generate_arcs(self, variable1, assignment, arcs):
+        start = time.time()
+        if not assignment.is_assigned(variable1):
+            for constraint in self.constraints:
+                if variable1 in constraint.variables:
+                    for variable2 in constraint.variables:
+                        if not assignment.is_assigned(variable2):
+                            if variable1 != variable2:
+                                arcs.add(Arc(variable1, variable2, constraint))
+        end = time.time()
+        self.arc_generate_time += end - start
+        return arcs
+
+    def generate_arcs_to(self, variable2, assignment, arcs):
+        start = time.time()
+        if not assignment.is_assigned(variable2):
+            for constraint in self.constraints:
+                if variable2 in constraint.variables:
+                    for variable1 in constraint.variables:
+                        if not assignment.is_assigned(variable1):
+                            if variable1 != variable2:
+                                arcs.add(Arc(variable1, variable2, constraint))
+        end = time.time()
+        self.arc_generate_time += end - start
         return arcs
 
     def remove_inconsistent_values(self, arc, assignment):
+        start = time.time()
+        if assignment.is_assigned(arc.variable1):
+            return 0
         removed_count = 0
         variable1 = arc.variable1
         variable2 = arc.variable2
         constraint = arc.constraint
         values1 = variable1.get_current_domain()
-        remove1 = True
-        if assignment.is_assigned(variable1):
-            remove1 = False
         for value1 in values1:
             found = False
-            assignment.add(variable1, value1)
             values2 = variable2.get_current_domain()
-            remove2 = True
-            if assignment.is_assigned(variable2):
-                remove2 = False
             for value2 in values2:
-                assignment.add(variable2, value2)
-                if constraint.test_constraint(assignment):
+                if constraint.test_constraint_for_two(variable1, value1, variable2, value2):
                     found = True
-                    if remove2:
-                        assignment.remove(variable2)
                     break
-                if remove2:
-                    assignment.remove(variable2)
-
             if not found:
                 variable1.get_current_domain().remove(value1)
                 removed_count += 1
-            if remove1:
-                assignment.remove(variable1)
+        end = time.time()
+        self.remove_inconsistency_time += end - start
         return removed_count
 
     def check_consistency(self, assignment):
-        self.arc_consistency(assignment)
+        return self.arc_consistency(assignment)
 
     def select_unassigned_variable(self, assignment):
         # uses min remaining values heuristic
