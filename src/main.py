@@ -72,7 +72,7 @@ cp = CP()
 cp.variables = variables
 cp.constraints = constraints
 assignment = cp.search()
-
+end = time.time()
 i = 1
 for variable in cp.variables:
     print assignment.get_value(variable),
@@ -80,6 +80,6 @@ for variable in cp.variables:
         print ""
     i += 1
 
-end = time.time()
+
 
 print "runtime:", end - start, "seconds."
