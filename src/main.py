@@ -12,8 +12,7 @@ def read_sudoku():
     return sudokus
 
 
-def make_variables(sudokus):
-    sudoku = sudokus[0]  # just for testing at the moment, in the end this has to be all the sudoku's :)
+def make_variables(sudoku):
     variable_array = []
     var_num = 1
     for cell in sudoku[0]:
@@ -64,22 +63,42 @@ def create_sudoku_constraints(variables):
 
 
 sudokus = read_sudoku()
-variables = make_variables(sudokus)
-constraints = create_sudoku_constraints(variables)
-
-start = time.time()
-cp = CP()
-cp.variables = variables
-cp.constraints = constraints
-assignment = cp.search()
-end = time.time()
-i = 1
-for variable in cp.variables:
-    print assignment.get_value(variable),
-    if i % 9 == 0:
-        print ""
-    i += 1
 
 
 
-print "runtime:", end - start, "seconds."
+root_start = time.time()
+sudokus_to_solve = 1000
+total_splits = 0
+total_backtracks = 0
+for j in range(sudokus_to_solve):
+    variables = make_variables(sudokus[j])
+    constraints = create_sudoku_constraints(variables)
+
+    cp = CP()
+    cp.variables = variables
+    cp.constraints = constraints
+    assignment = cp.search()
+
+    i = 1
+    for variable in cp.variables:
+        print assignment.get_value(variable),
+        if i % 9 == 0:
+            print ""
+        i += 1
+
+
+    print "sudoku", j
+    print "runtime:", cp.runtime, "seconds."
+    print "splits:", cp.splits
+    print "backtracks:", cp.backtracks
+    print "arc generate time:", cp.arc_generate_time
+    print "remove inconsistency time:", cp.remove_inconsistency_time
+    total_splits += cp.splits
+    total_backtracks += cp.backtracks
+    root_end = time.time()
+    print "total runtime:", root_end - root_start, "seconds."
+    print "total splits:", total_splits
+    print "total backtracks:", total_backtracks
+    print "average runtime:", 1.0 * (root_end - root_start) / sudokus_to_solve, "seconds."
+    print "average splits:", 1.0 * total_splits/sudokus_to_solve
+    print "average backtracks:", 1.0 * total_backtracks/sudokus_to_solve
