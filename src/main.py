@@ -65,7 +65,9 @@ def create_sudoku_constraints(variables):
 sudokus = read_sudoku()
 
 root_start = time.time()
-sudokus_to_solve = 50
+sudokus_to_solve = 1000
+total_splits = 0
+total_backtracks = 0
 for j in range(sudokus_to_solve):
     variables = make_variables(sudokus[j])
     constraints = create_sudoku_constraints(variables)
@@ -88,7 +90,13 @@ for j in range(sudokus_to_solve):
     print "backtracks:", cp.backtracks
     print "arc generate time:", cp.arc_generate_time
     print "remove inconsistency time:", cp.remove_inconsistency_time
+    total_splits += cp.splits
+    total_backtracks += cp.backtracks
 
 root_end = time.time()
 print "total runtime:", root_end - root_start, "seconds."
-print "average runtime:", 1.0*(root_end - root_start)/sudokus_to_solve, "seconds."
+print "total splits:", total_splits
+print "total backtracks:", total_backtracks
+print "average runtime:", 1.0 * (root_end - root_start) / sudokus_to_solve, "seconds."
+print "average splits:", 1.0 * total_splits/sudokus_to_solve
+print "average backtracks:", 1.0 * total_backtracks/sudokus_to_solve

@@ -19,3 +19,11 @@ class Constraint:
     @abstractmethod
     def get_number_of_rule_outs(self, variable1, value2):
         pass
+
+    @abstractmethod
+    def rule_out(self, variable, value):
+        pass
+
+    @abstractmethod
+    def constraint_specific_propagation(self, assignment):
+        pass

@@ -22,3 +22,18 @@ class NotEqualsConstraint(Constraint):
                     rule_out += 1
                     break
         return rule_out
+
+    def rule_out(self, variable, value):
+        deduced_variables = []
+        for variable2 in self.variables:
+            if variable != variable2:
+                if value in variable2.get_current_domain():
+                    variable2.get_current_domain().remove(value)
+                    if len(variable2.get_current_domain()) == 0:
+                        return False, deduced_variables
+                    if len(variable2.get_current_domain()) == 1:
+                        deduced_variables.append(variable2)
+        return True, deduced_variables
+
+    def constraint_specific_propagation(self, assignment):
+        return True
