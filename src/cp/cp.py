@@ -17,12 +17,12 @@ class CP:
         self.arc_generate_time = 0
         self.remove_inconsistency_time = 0
         self.runtime = 0
-        self.arc = True
-        self.fc = True
-        self.mrv = True
-        self.lcv = True
-        self.specific = True
-        self.md = True
+        self.arc = True  # arc consistency
+        self.fc = True  # forward checking
+        self.mrv = True  # min remaining values
+        self.lcv = True  # least constraining value
+        self.specific = True  # constraint specific progpagation (alldiff-specific)
+        self.md = True  # maximum degree
 
     def search(self):
         start = time.time()
@@ -100,10 +100,10 @@ class CP:
         start = time.time()
         if not assignment.is_assigned(variable1):
             for constraint in self.variables_to_constraints[variable1.name]:
-                    for variable2 in constraint.variables:
-                        if not assignment.is_assigned(variable2):
-                            if variable1 != variable2:
-                                arcs.add(Arc(variable1, variable2, constraint))
+                for variable2 in constraint.variables:
+                    if not assignment.is_assigned(variable2):
+                        if variable1 != variable2:
+                            arcs.add(Arc(variable1, variable2, constraint))
         end = time.time()
         self.arc_generate_time += end - start
         return arcs
@@ -112,10 +112,10 @@ class CP:
         start = time.time()
         if not assignment.is_assigned(variable2):
             for constraint in self.variables_to_constraints[variable2.name]:
-                    for variable1 in constraint.variables:
-                        if not assignment.is_assigned(variable1):
-                            if variable1 != variable2:
-                                arcs.add(Arc(variable1, variable2, constraint))
+                for variable1 in constraint.variables:
+                    if not assignment.is_assigned(variable1):
+                        if variable1 != variable2:
+                            arcs.add(Arc(variable1, variable2, constraint))
         end = time.time()
         self.arc_generate_time += end - start
         return arcs
@@ -154,13 +154,13 @@ class CP:
         while len(next_check) > 0:
             current_variable = next_check.pop()
             for constraint in self.variables_to_constraints[current_variable.name]:
-                    consistent, deduced_variables = constraint.rule_out(current_variable,
-                                                                        current_variable.get_current_domain()[0])
-                    for variable2 in deduced_variables:
-                        assignment.add(variable2, variable2.get_current_domain()[0])
-                        next_check.add(variable2)
-                    if not consistent:
-                        return False
+                consistent, deduced_variables = constraint.rule_out(current_variable,
+                                                                    current_variable.get_current_domain()[0])
+                for variable2 in deduced_variables:
+                    assignment.add(variable2, variable2.get_current_domain()[0])
+                    next_check.add(variable2)
+                if not consistent:
+                    return False
         return True
 
     def select_unassigned_variable(self, assignment):
@@ -195,9 +195,9 @@ class CP:
     def get_variable_degree(self, variable, assignment):
         constrained_variables = set()
         for constraint in self.variables_to_constraints[variable.name]:
-                for variable2 in constraint.variables:
-                    if variable != variable2 and not assignment.is_assigned(variable2):
-                        constrained_variables.add(variable2)
+            for variable2 in constraint.variables:
+                if variable != variable2 and not assignment.is_assigned(variable2):
+                    constrained_variables.add(variable2)
         return len(constrained_variables)
 
     def order_domain_values(self, variable):
@@ -209,9 +209,9 @@ class CP:
         for value in variable.get_current_domain():
             rule_out = 0
             for constraint in self.variables_to_constraints[variable.name]:
-                    for variable2 in constraint.variables:
-                        if variable != variable2:
-                            rule_out += constraint.get_number_of_rule_outs(variable2, value)
+                for variable2 in constraint.variables:
+                    if variable != variable2:
+                        rule_out += constraint.get_number_of_rule_outs(variable2, value)
             ordered_domain.append((value, rule_out))
         ordered_domain = heapq.nsmallest(len(ordered_domain), ordered_domain, key=lambda e: e[1])
         for i in range(len(ordered_domain)):
