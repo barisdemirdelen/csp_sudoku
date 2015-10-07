@@ -1,11 +1,12 @@
 import time
+import sys
 from cp.cp import CP
 from cp.variable import Variable
 from cp.constraints.all_different_constraint import AllDifferentConstraint
 
 
-def read_sudoku():
-    with open("1000 sudokus.txt") as file:
+def read_sudoku(filename):
+    with open(filename) as file:
         sudokus = []
         for sudoku in file:
             sudokus.append(sudoku.rstrip().split(","))
@@ -62,10 +63,17 @@ def create_sudoku_constraints(variables):
     return constaints_array
 
 
-sudokus = read_sudoku()
+input_filename = "1000 sudokus.txt"
+output_file = None
+if len(sys.argv) > 1:
+    input_filename = sys.argv[1]
+if len(sys.argv) > 2:
+    output_filename = sys.argv[2]
+    output_file = open(output_filename, 'w')
+sudokus = read_sudoku(input_filename)
 
 root_start = time.time()
-sudokus_to_solve = 1000
+sudokus_to_solve = len(sudokus)
 total_splits = 0
 total_backtracks = 0
 for j in range(sudokus_to_solve):
@@ -80,9 +88,14 @@ for j in range(sudokus_to_solve):
     i = 1
     for variable in cp.variables:
         print assignment.get_value(variable),
+        if output_file:
+            output_file.write(str(assignment.get_value(variable))+" ")
         if i % 9 == 0:
             print ""
+            if output_file:
+                output_file.write('\n')
         i += 1
+    output_file.write('\n')
 
     print "sudoku", j
     print "runtime:", cp.runtime, "seconds."
@@ -99,3 +112,6 @@ for j in range(sudokus_to_solve):
     print "average runtime:", 1.0 * (root_end - root_start) / (j + 1), "seconds."
     print "average splits:", 1.0 * total_splits / (j + 1)
     print "average backtracks:", 1.0 * total_backtracks / (j + 1)
+
+if output_file:
+    output_file.close()

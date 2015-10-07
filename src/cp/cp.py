@@ -1,5 +1,4 @@
 import heapq
-import numpy
 from backtracking_search import BacktrackingSearch
 from assignment import Assignment
 from arc import Arc
