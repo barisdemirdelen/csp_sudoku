@@ -26,6 +26,15 @@ def make_variables(sudoku):
 
 
 def create_sudoku_constraints(variables):
+    """
+        make constraints for the variable, variables is an array with index 0 (first cell left uppercorner)to 80 
+        (cell bottom right-hander corner)
+
+        if you want to extend this sudoku puzzle with different constraint be really carefull with indexing the variables
+        the constraints for the rows and columns are really straightforward, building the constraints for the 
+        boxes(the 3x3) grid for the sudoku is quite complex 
+    """
+
     constaints_array = []
     constraint_num = 1
     # get all the variables per row
@@ -41,9 +50,7 @@ def create_sudoku_constraints(variables):
             colom_vars.append(variables[cell])
         constaints_array.append(AllDifferentConstraint("name%d" % constraint_num, colom_vars))
         constraint_num += 1
-    # quit a complected loop to get the indexes of every block
-    # maybe we van split up this code or rewrite it, for now it works 
-    # get all the variables per block
+    # quite a complicated loop to get the indexes of every block
     row_start = 0
     row_end = 26
     for row_block in range(0, 3):
@@ -63,7 +70,7 @@ def create_sudoku_constraints(variables):
     return constaints_array
 
 
-input_filename = "1000 sudokus.txt"
+input_filename = "1000 sudokus.txt" #in case of no iput file :)
 output_file = None
 if len(sys.argv) > 1:
     input_filename = sys.argv[1]
