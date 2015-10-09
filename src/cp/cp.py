@@ -98,7 +98,7 @@ class CP:
     def generate_arcs(self, variable1, assignment, arcs):
         start = time.time()
         if not assignment.is_assigned(variable1):
-            for constraint in self.variables_to_constraints[variable1.name]:
+            for constraint in self.get_constraints_of(variable1):
                 for variable2 in constraint.variables:
                     if not assignment.is_assigned(variable2):
                         if variable1 != variable2:
@@ -110,7 +110,7 @@ class CP:
     def generate_arcs_to(self, variable2, assignment, arcs):
         start = time.time()
         if not assignment.is_assigned(variable2):
-            for constraint in self.variables_to_constraints[variable2.name]:
+            for constraint in self.get_constraints_of(variable2):
                 for variable1 in constraint.variables:
                     if not assignment.is_assigned(variable1):
                         if variable1 != variable2:
@@ -152,7 +152,7 @@ class CP:
         next_check.add(variable)
         while len(next_check) > 0:
             current_variable = next_check.pop()
-            for constraint in self.variables_to_constraints[current_variable.name]:
+            for constraint in self.get_constraints_of(current_variable):
                 consistent, deduced_variables = constraint.rule_out(current_variable,
                                                                     current_variable.get_current_domain()[0])
                 for variable2 in deduced_variables:
@@ -164,7 +164,6 @@ class CP:
 
     def select_unassigned_variable(self, assignment):
         # uses min remaining values heuristic
-
         if not self.mrv:
             for variable in self.variables:
                 if not assignment.is_assigned(variable):
@@ -173,27 +172,32 @@ class CP:
 
         min_remaining_values = float("inf")
         min_variable = None
-        max_degree = 0
         for variable in self.variables:
             if not assignment.is_assigned(variable):
                 current_remaining_values = len(variable.get_current_domain())
                 if current_remaining_values <= min_remaining_values:
-                    if self.md and current_remaining_values == min_remaining_values:
-                        # max degree heuristic
-                        current_degree = self.get_variable_degree(variable, assignment)
-                        if current_degree >= max_degree:
-                            max_degree = self.get_variable_degree(variable, assignment)
-                            min_variable = variable
-                            min_remaining_values = current_remaining_values
+                    if current_remaining_values == min_remaining_values:
+                        min_variable.append(variable)
                     else:
-                        max_degree = self.get_variable_degree(variable, assignment)
-                        min_variable = variable
+                        min_variable = [variable]
                         min_remaining_values = current_remaining_values
-        return min_variable
+
+        if self.md and len(min_variable) > 1:
+            # max degree heuristic
+            max_degree = 0
+            max_degree_variable = None
+            for variable in min_variable:
+                current_degree = self.get_variable_degree(variable, assignment)
+                if current_degree >= max_degree:
+                    max_degree = self.get_variable_degree(variable, assignment)
+                    max_degree_variable = variable
+            return max_degree_variable
+        else:
+            return min_variable[0]
 
     def get_variable_degree(self, variable, assignment):
         constrained_variables = set()
-        for constraint in self.variables_to_constraints[variable.name]:
+        for constraint in self.get_constraints_of(variable):
             for variable2 in constraint.variables:
                 if variable != variable2 and not assignment.is_assigned(variable2):
                     constrained_variables.add(variable2)
@@ -207,7 +211,7 @@ class CP:
         ordered_domain = []
         for value in variable.get_current_domain():
             rule_out = 0
-            for constraint in self.variables_to_constraints[variable.name]:
+            for constraint in self.get_constraints_of(variable):
                 for variable2 in constraint.variables:
                     if variable != variable2:
                         rule_out += constraint.get_number_of_rule_outs(variable2, value)
@@ -222,3 +226,6 @@ class CP:
         for variable in self.variables:
             if len(variable.get_current_domain()) == 1:
                 assignment.add(variable, variable.get_current_domain()[0])
+
+    def get_constraints_of(self, variable):
+        return self.variables_to_constraints[variable.name]

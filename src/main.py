@@ -95,7 +95,8 @@ for j in range(sudokus_to_solve):
             if output_file:
                 output_file.write('\n')
         i += 1
-    output_file.write('\n')
+    if output_file:
+        output_file.write('\n')
 
     print "sudoku", j
     print "runtime:", cp.runtime, "seconds."
