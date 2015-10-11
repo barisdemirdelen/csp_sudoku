@@ -43,6 +43,7 @@ def create_sudoku_constraints(variables):
         constraint_num += 1
         if i + 9 >= 81:
             break
+
     # get all the variables per column
     for colom in range(0, 9):
         colom_vars = []
@@ -50,23 +51,24 @@ def create_sudoku_constraints(variables):
             colom_vars.append(variables[cell])
         constaints_array.append(AllDifferentConstraint("name%d" % constraint_num, colom_vars))
         constraint_num += 1
+
     # quite a complicated loop to get the indexes of every block
-    row_start = 0
-    row_end = 26
+    row_start = 0 #start index of the first three rows
+    row_end = 26 #end index of the first three rows 
     for row_block in range(0, 3):
-        column_start = 0
-        column_end = 2
+        column_start = 0 # start index of all the elemtens in the first three coloms
+        column_end = 2  #end index of all the elemtens in the first three coloms
         for column_block in range(0, 3):
             block_vars = []
             for i in range(0, 82):
-                if (column_start <= i % 9 <= column_end) and (row_start <= i <= row_end):
+                if (column_start <= i % 9 <= column_end) and (row_start <= i <= row_end): # if element in the box
                     block_vars.append(variables[i])
             constaints_array.append(AllDifferentConstraint("name%d" % constraint_num, block_vars))
             constraint_num += 1
-            column_start += 3
-            column_end += 3
-        row_start += 27
-        row_end += 27
+            column_start += 3 # move to the next three colums 
+            column_end += 3 # move to the next three colums
+        row_start += 27 # move to the next three rows
+        row_end += 27  # move to the next three rows
     return constaints_array
 
 
