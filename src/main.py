@@ -72,7 +72,7 @@ def create_sudoku_constraints(variables):
     return constaints_array
 
 
-input_filename = "1000 sudokus.txt" #in case of no iput file :)
+input_filename = "1000_sudokus.txt" #in case no input file
 output_file = None
 if len(sys.argv) > 1:
     input_filename = sys.argv[1]
